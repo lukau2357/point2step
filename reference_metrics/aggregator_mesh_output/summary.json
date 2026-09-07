@@ -1,0 +1,185 @@
+{
+  "dir_ours": "output_mesh",
+  "dir_orig": "point2cad_original/output_p2cad_orig",
+  "reliability": {
+    "n_attempted": 3957,
+    "ours": {
+      "n_failed": 18,
+      "success_rate": 0.9954510993176648
+    },
+    "orig": {
+      "n_failed": 517,
+      "success_rate": 0.8693454637351529
+    }
+  },
+  "scope": {
+    "n_common_ok": 3427,
+    "n_primitive_only": 2762,
+    "n_has_freeform": 665,
+    "n_unclassified": 0
+  },
+  "tables": {
+    "primitive_only": {
+      "n_parts": 2762,
+      "metrics": {
+        "p_coverage": {
+          "n": 2762,
+          "ours": 0.9852771904417089,
+          "orig": 0.9782083272990587,
+          "delta": 0.0070688631426502535,
+          "delta_ci95_half": 0.0021829224578890282,
+          "direction": "higher_is_better"
+        },
+        "p_coverage_mesh_to_pc": {
+          "n": 2762,
+          "ours": 0.85022041129884,
+          "orig": 0.7677254290468627,
+          "delta": 0.08249498225197714,
+          "delta_ci95_half": 0.005005845177613308,
+          "direction": "higher_is_better"
+        },
+        "residual_mean": {
+          "n": 2762,
+          "ours": 0.0014774264807720884,
+          "orig": 0.0020898451373538855,
+          "delta": -0.0006124186565817973,
+          "delta_ci95_half": 0.000160281119115392,
+          "direction": "lower_is_better"
+        },
+        "chamfer_sym": {
+          "n": 2762,
+          "ours": 0.0042101402318396545,
+          "orig": 0.006010665955453894,
+          "delta": -0.0018005257236142402,
+          "delta_ci95_half": 0.0001395488499166132,
+          "direction": "lower_is_better"
+        }
+      },
+      "speedup": {
+        "fit_time": {
+          "n": 2762,
+          "speedup": 34.758812667757596,
+          "ci95_half": 0.4802571866742724
+        },
+        "clip_time": {
+          "n": 2762,
+          "speedup": 0.8240590267670366,
+          "ci95_half": 0.04545114130656025
+        },
+        "total_time": {
+          "n": 2762,
+          "speedup": 7.167722217153577,
+          "ci95_half": 0.17027467845068323
+        }
+      }
+    },
+    "has_freeform": {
+      "n_parts": 665,
+      "metrics": {
+        "p_coverage": {
+          "n": 665,
+          "ours": 0.8569627067669172,
+          "orig": 0.9494747368421051,
+          "delta": -0.09251203007518796,
+          "delta_ci95_half": 0.014812516466274447,
+          "direction": "higher_is_better"
+        },
+        "p_coverage_mesh_to_pc": {
+          "n": 665,
+          "ours": 0.6511714314324469,
+          "orig": 0.7473570612165382,
+          "delta": -0.09618562978409141,
+          "delta_ci95_half": 0.016177779513426443,
+          "direction": "higher_is_better"
+        },
+        "residual_mean": {
+          "n": 665,
+          "ours": 0.004932310551235104,
+          "orig": 0.0031522923580531224,
+          "delta": 0.0017800181931819819,
+          "delta_ci95_half": 0.0007000925497736763,
+          "direction": "lower_is_better"
+        },
+        "chamfer_sym": {
+          "n": 665,
+          "ours": 0.009523687179510451,
+          "orig": 0.008215315268041742,
+          "delta": 0.0013083719114687091,
+          "delta_ci95_half": 0.0006969065165033884,
+          "direction": "lower_is_better"
+        }
+      },
+      "speedup": {
+        "fit_time": {
+          "n": 665,
+          "speedup": 0.5684286517985823,
+          "ci95_half": 0.057597254518580665
+        },
+        "clip_time": {
+          "n": 665,
+          "speedup": 1.001149249980299,
+          "ci95_half": 0.09320965075025445
+        },
+        "total_time": {
+          "n": 665,
+          "speedup": 0.47360475750527564,
+          "ci95_half": 0.03868350661579992
+        }
+      }
+    },
+    "all": {
+      "n_parts": 3427,
+      "metrics": {
+        "p_coverage": {
+          "n": 3427,
+          "ours": 0.960378114969361,
+          "orig": 0.9726326524657134,
+          "delta": -0.012254537496352497,
+          "delta_ci95_half": 0.0036174242178227817,
+          "direction": "higher_is_better"
+        },
+        "p_coverage_mesh_to_pc": {
+          "n": 3427,
+          "ours": 0.8115954998278299,
+          "orig": 0.7637730028410951,
+          "delta": 0.047822496986734776,
+          "delta_ci95_half": 0.005631840975484283,
+          "direction": "higher_is_better"
+        },
+        "residual_mean": {
+          "n": 3427,
+          "ours": 0.0021478373085683845,
+          "orig": 0.0022960101218198886,
+          "delta": -0.0001481728132515046,
+          "delta_ci95_half": 0.0001900603066505542,
+          "direction": "lower_is_better"
+        },
+        "chamfer_sym": {
+          "n": 3427,
+          "ours": 0.005241219519905332,
+          "orig": 0.006438472139542285,
+          "delta": -0.0011972526196369535,
+          "delta_ci95_half": 0.00018058030057683996,
+          "direction": "lower_is_better"
+        }
+      },
+      "speedup": {
+        "fit_time": {
+          "n": 3427,
+          "speedup": 28.124261932241765,
+          "ci95_half": 0.5957611437483266
+        },
+        "clip_time": {
+          "n": 3427,
+          "speedup": 0.8584229014203252,
+          "ci95_half": 0.04091473814453006
+        },
+        "total_time": {
+          "n": 3427,
+          "speedup": 5.868746987895883,
+          "ci95_half": 0.16354278876845907
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+output_mesh
+output_step
+output_proxy_step
+output_cadrecode
+point2cad_original/output_p2cad_orig
+/aggregator_mesh_output
+/aggregator_step_output
+__pycache__/
+secrets.yaml
+.hf_cache
