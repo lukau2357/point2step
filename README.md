@@ -30,6 +30,10 @@ This repository holds everything needed to reproduce the published results, as w
 - [Dataset](#dataset)
   - [Bundled samples](#bundled-samples)
   - [ABCParts](#abcparts)
+- [Results](#results)
+  - [Mesh generation](#mesh-generation)
+  - [STEP file reconstruction](#step-file-reconstruction)
+  - [INR to B-Spline conversion](#inr-to-b-spline-conversion)
 - [Reproducing the evaluation](#reproducing-the-evaluation)
   - [Reference metrics](#reference-metrics)
 - [Baselines](#baselines)
@@ -205,6 +209,90 @@ python preprocessing/convert_abc_parts.py --data_dir <path_to_ABCParts>
 This writes `sample_clouds_abc_parts/{model_id}/0.xyzc` at the repository root, which is where every pipeline looks by default. Use `--output_dir` to put it somewhere else, and pass the same path as `--input_dir` to the pipelines appropriately.
 
 `splits/val_primitives.txt` (3110 models) and `splits/val_freeform.txt` (847 models) are the validation splits the evaluation wrappers read, and they ship with the repository. They are produced by `preprocessing/classify_abc_parts.py`, which runs only the surface fitting engine: a model is **primitive** when every one of its segments is fitted by a primitive surface, and **freeform** as soon as one segment is not.
+
+## Results
+
+All results are computed on the ABCParts validation split (3957 models: 3110 primitive, 847 freeform), using ground truth segmentations, in the normalized space, with the coverage threshold τ = 0.01. Uncertainty estimates are 95% confidence intervals under the asymptotic normality assumption. All experiments were run on a laptop with an Intel i7-13620H, 16 GB RAM and an NVIDIA GeForce RTX 4050 Laptop GPU (6 GB VRAM).
+
+### Mesh generation
+
+Over all 3957 models, our pipeline runs out of memory on 18 (**99.5%** success rate), and the original Point2CAD on 517 (**86.9%** success rate). The tables below are averaged over the 3427 models both pipelines completed: 2762 primitive and 665 freeform. ↑ means higher is better, ↓ means lower is better. Δ is the mean of the per-model paired differences (ours minus Point2CAD), rounded independently of the two mean columns.
+
+**Primitive class**
+
+| Metric | Ours | Point2CAD | Δ |
+| --- | --- | --- | --- |
+| P2M (↑) | **0.9853** | 0.9782 | +0.0071 ± 0.0022 |
+| M2P (↑) | **0.8502** | 0.7677 | +0.0825 ± 0.0050 |
+| Residual mean (↓) | **0.0015** | 0.0021 | −0.0006 ± 0.0002 |
+| Mesh Chamfer (↓) | **0.0042** | 0.0060 | −0.0018 ± 0.0001 |
+
+| Stage | Speedup (t<sub>orig</sub> / t<sub>ours</sub>) |
+| --- | --- |
+| Surface fitting | **×34.76 ± 0.48** |
+| Mesh generation | ×0.82 ± 0.05 |
+| Total | **×7.17 ± 0.17** |
+
+**Freeform class**
+
+| Metric | Ours | Point2CAD | Δ |
+| --- | --- | --- | --- |
+| P2M (↑) | 0.8570 | **0.9495** | −0.0925 ± 0.0148 |
+| M2P (↑) | 0.6512 | **0.7474** | −0.0962 ± 0.0162 |
+| Residual mean (↓) | 0.0049 | **0.0032** | +0.0018 ± 0.0007 |
+| Mesh Chamfer (↓) | 0.0095 | **0.0082** | +0.0013 ± 0.0007 |
+
+| Stage | Speedup (t<sub>orig</sub> / t<sub>ours</sub>) |
+| --- | --- |
+| Surface fitting | ×0.57 ± 0.06 |
+| Mesh generation | ×1.00 ± 0.09 |
+| Total | ×0.47 ± 0.04 |
+
+**Global**
+
+| Metric | Ours | Point2CAD | Δ |
+| --- | --- | --- | --- |
+| P2M (↑) | 0.9604 | **0.9726** | −0.0123 ± 0.0036 |
+| M2P (↑) | **0.8116** | 0.7638 | +0.0478 ± 0.0056 |
+| Residual mean (↓) | **0.0021** | 0.0023 | −0.0001 ± 0.0002 |
+| Mesh Chamfer (↓) | **0.0052** | 0.0064 | −0.0012 ± 0.0002 |
+
+| Stage | Speedup (t<sub>orig</sub> / t<sub>ours</sub>) |
+| --- | --- |
+| Surface fitting | **×28.12 ± 0.60** |
+| Mesh generation | ×0.86 ± 0.04 |
+| Total | **×5.87 ± 0.16** |
+
+On the primitive class we outperform Point2CAD on every metric, and vectorized primitive fitting makes the whole pipeline about 7 times faster. Mesh generation is slower because we sample the UV grid at a higher resolution. On the freeform class our pipeline is both slower and less accurate. We train the INR for 5000 steps instead of 1000, and we suspect the accuracy gap comes from the more aggressive regularization we apply during INR training.
+
+### STEP file reconstruction
+
+The STEP pipeline is evaluated on the primitive class only. For every model it produces several candidate STEP files, and the evaluation keeps two of them: **best overall**, the candidate with the highest P2S (OCD as a tiebreaker), and **kernel-valid**, the same selection restricted to candidates that pass `BRepCheck_Analyzer`. Points are sampled only from the faces that pass `BRepCheck_Analyzer`, so P2S and OCD can be computed for kernel-invalid models as well.
+
+| Model type | Count | Percentage |
+| --- | --- | --- |
+| Primitive class | 3110 | / |
+| Non-empty BRep | 2994 | 96.3% |
+| Empty BRep | 116 | 3.7% |
+| Kernel-valid STEP produced | **1458** | **46.9%** |
+
+An empty BRep is produced when the integer linear program finds no non-trivial topologically consistent solution. In that case there is nothing to sample, so these models are excluded from the distributions below.
+
+<figure>
+  <img src="docs/figures/coverage_boxplot.png" alt="P2S coverage, best overall vs kernel-valid" width="49%">
+  <img src="docs/figures/chamfer_boxplot.png" alt="One-sided Chamfer distance, best overall vs kernel-valid" width="49%">
+  <figcaption><em>Left: P2S coverage, median 0.5517 (best overall) and 0.7590 (kernel-valid). Right: one-sided Chamfer distance, median 9.34 × 10<sup>-3</sup> (best overall) and 8.11 × 10<sup>-3</sup> (kernel-valid). When the pipeline produces at least one kernel-valid STEP file, high coverage can reasonably be expected.</em></figcaption>
+</figure>
+
+### INR to B-Spline conversion
+
+For the freeform class, instead of running the full STEP pipeline, we measure how much information the conversion of every INR surface to a B-Spline surface loses. For each freeform cluster, both surfaces are sampled on a uniform 100 × 100 UV grid, and the residual is the mean distance from each cluster point to its nearest surface sample.
+
+| Quantity (1606 freeform surfaces) | Mean |
+| --- | --- |
+| INR residual | (3.96 ± 0.09) × 10<sup>-3</sup> |
+| B-Spline residual | (4.30 ± 0.10) × 10<sup>-3</sup> |
+| Δ = B-Spline − INR | (3.37 ± 0.41) × 10<sup>-4</sup> |
 
 ## Reproducing the evaluation
 
